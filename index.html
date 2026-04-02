@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Score App</title>
+</head>
+
+<body>
+
+  <h1>Matches</h1>
+  <div id="matchesBox"></div>
+
+  <h1>Chat</h1>
+  <div id="chatBox"></div>
+
+  <script>
+    const API = "https://athimni-youssef-score.onrender.com";
+
+    // =====================
+    // SAFE FETCH FUNCTION
+    // =====================
+    async function safeFetch(url) {
+      try {
+        const res = await fetch(url);
+
+        if (!res.ok) {
+          console.error("HTTP Error:", res.status, url);
+          return null;
+        }
+
+        const text = await res.text();
+
+        try {
+          return JSON.parse(text);
+        } catch (e) {
+          console.error("Response is not JSON:", text);
+          return null;
+        }
+
+      } catch (err) {
+        console.error("Fetch failed:", err);
+        return null;
+      }
+    }
+
+    // =====================
+    // LOAD MATCHES
+    // =====================
+    async function loadMatches() {
+      const data = await safeFetch(`${API}/matches`);
+
+      if (!data) return;
+
+      const box = document.getElementById("matchesBox");
+      box.innerHTML = "";
+
+      data.forEach(match => {
+        const div = document.createElement("div");
+        div.textContent = `${match.team1} ${match.score} ${match.team2}`;
+        box.appendChild(div);
+      });
+    }
+
+    // =====================
+    // LOAD CHAT
+    // =====================
+    async function loadChat() {
+      const data = await safeFetch(`${API}/chat`);
+
+      if (!data) return;
+
+      const chatBox = document.getElementById("chatBox");
+      chatBox.innerHTML = "";
+
+      data.forEach(msg => {
+        const div = document.createElement("div");
+        div.textContent = `${msg.user}: ${msg.message}`;
+        chatBox.appendChild(div);
+      });
+    }
+
+    // =====================
+    // START
+    // =====================
+    loadMatches();
+    loadChat();
+  </script>
+
+</body>
+</html>
