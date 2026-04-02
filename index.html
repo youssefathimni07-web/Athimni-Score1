@@ -2,29 +2,70 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Score App</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+    }
+
+    .box {
+      background: white;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .title {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+  </style>
 </head>
 
 <body>
 
-  <h1>Matches</h1>
-  <div id="matchesBox"></div>
+  <div class="container">
 
-  <h1>Chat</h1>
-  <div id="chatBox"></div>
+    <h1>Score App</h1>
+
+    <!-- MATCHES -->
+    <div class="box">
+      <div class="title">Matches</div>
+      <div id="matchesBox">Loading matches...</div>
+    </div>
+
+    <!-- CHAT -->
+    <div class="box">
+      <div class="title">Chat</div>
+      <div id="chatBox">Loading chat...</div>
+    </div>
+
+  </div>
 
   <script>
     const API = "https://athimni-youssef-score.onrender.com";
 
-    // =====================
-    // SAFE FETCH FUNCTION
-    // =====================
     async function safeFetch(url) {
       try {
         const res = await fetch(url);
 
         if (!res.ok) {
-          console.error("HTTP Error:", res.status, url);
+          console.error("HTTP Error:", res.status);
           return null;
         }
 
@@ -33,7 +74,7 @@
         try {
           return JSON.parse(text);
         } catch (e) {
-          console.error("Response is not JSON:", text);
+          console.error("Not JSON:", text);
           return null;
         }
 
@@ -43,45 +84,42 @@
       }
     }
 
-    // =====================
-    // LOAD MATCHES
-    // =====================
     async function loadMatches() {
       const data = await safeFetch(`${API}/matches`);
-
-      if (!data) return;
-
       const box = document.getElementById("matchesBox");
+
+      if (!data) {
+        box.textContent = "Failed to load matches";
+        return;
+      }
+
       box.innerHTML = "";
 
-      data.forEach(match => {
+      data.forEach(m => {
         const div = document.createElement("div");
-        div.textContent = `${match.team1} ${match.score} ${match.team2}`;
+        div.textContent = `${m.team1} ${m.score} ${m.team2}`;
         box.appendChild(div);
       });
     }
 
-    // =====================
-    // LOAD CHAT
-    // =====================
     async function loadChat() {
       const data = await safeFetch(`${API}/chat`);
+      const box = document.getElementById("chatBox");
 
-      if (!data) return;
+      if (!data) {
+        box.textContent = "Failed to load chat";
+        return;
+      }
 
-      const chatBox = document.getElementById("chatBox");
-      chatBox.innerHTML = "";
+      box.innerHTML = "";
 
-      data.forEach(msg => {
+      data.forEach(c => {
         const div = document.createElement("div");
-        div.textContent = `${msg.user}: ${msg.message}`;
-        chatBox.appendChild(div);
+        div.textContent = `${c.user}: ${c.message}`;
+        box.appendChild(div);
       });
     }
 
-    // =====================
-    // START
-    // =====================
     loadMatches();
     loadChat();
   </script>
